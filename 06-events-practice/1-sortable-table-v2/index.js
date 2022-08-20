@@ -32,7 +32,7 @@ export default class SortableTable {
   getColumnHeader() {
     return this.headerConfig.map(item => {
         return `
-          <div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
+          <div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-order="">
             <span>${item.title}</span>
             <span data-element="arrow" class="sortable-table__sort-arrow"> <span class="sort-arrow"></span> </span>
           </div>
@@ -56,13 +56,19 @@ export default class SortableTable {
     }).join("");
   }
 
-  callBack(event) {
+  callBack = (event) => {
     let target = event.target;
 
     if(target.tagName === 'SPAN') target = target.parentElement;
     if(!target) return;
+
+    if(target.dataset.sortable === 'false') return;
+
+    let field = target.dataset.id;
+    target.dataset.order = target.dataset.order === 'asc' ? 'desc' : 'asc';
+    let order = target.dataset.order;
     
-    this.sort(target, this.sorted.order)
+    this.sort(field, order);
   }
 
   initEventListeners() {
@@ -80,9 +86,6 @@ export default class SortableTable {
     });
 
     currentColumn.dataset.order = order;
-
-    this.sorted.id = field;
-    this.sorted.order = this.sorted.order === 'asc' ? 'desc' : 'asc';
 
     this.subElements.body.innerHTML = this.getColumnBody(obj) // updateBody
   }
@@ -114,6 +117,8 @@ export default class SortableTable {
     const element = wrapper.firstElementChild;
     this.element = element;
     this.subElements = this.getSubElements(element);
+
+    this.initEventListeners();
   }
 
   getSubElements(element) {

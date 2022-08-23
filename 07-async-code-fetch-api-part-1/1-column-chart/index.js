@@ -20,12 +20,15 @@ export default class ColumnChart {
        this.data = data;
        this.url = url;
        this.range = range;
+    //    this.range.from = range.from;
+    //    this.range.to = range.to;
        this.label = label;
        this.link = link;
        this.value = formatHeading(value);
 
        this.render();
-       this.loadData();
+       this.loadData(this.range.from, this.range.to);
+       
     }
 
     getTemplate() {
@@ -51,11 +54,11 @@ export default class ColumnChart {
         return this.link ? `<a href="${this.link} class="column-chart__link">View all</a>` : '';
     }
 
-    getColumn(result = []) {
-        const maxValue = Math.max(...result);
+    getColumn() {
+        const maxValue = Math.max(...this.data);
         const scale = this.chartHeight / maxValue;
 
-        return result.map(item => {
+        return this.data.map(item => {
             const percent = ((item / maxValue) * 100).toFixed(0);
 
             return `
@@ -70,10 +73,9 @@ export default class ColumnChart {
                 const data = response.json();
                 return data;
             }).then(data => {
-                this.data = data;
-                const result = Object.values(this.data);
+                const result = Object.values(data);
+                this.update(result)
             })
-            
     }
 
     render() {
@@ -91,17 +93,17 @@ export default class ColumnChart {
     }
 
     getSubElements() {
-        const resalt = {};
+        const result = {};
 
         const elements = this.element.querySelectorAll("[data-element='body']");
 
         for (const subElement of elements) {
             const name = subElement.dataset.element;
 
-            resalt[name] = subElement;
+            result[name] = subElement;
         }
 
-        return resalt;
+        return result;
     }
 
     update(data) {

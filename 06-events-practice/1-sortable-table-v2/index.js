@@ -10,8 +10,8 @@ export default class SortableTable {
     this.sorted = sorted;
 
     this.render();
-    this.initEventListeners();
     this.sort(sorted.id, sorted.order)
+    this.initEventListeners();
   }
 
   getTemplate() {
@@ -56,27 +56,24 @@ export default class SortableTable {
     }).join("");
   }
 
-  callBack = (event) => {
-    let target = event.target;
+  sortTable = (event) => {
+    const target = event.target.closest('[data-sortable="true"]');
 
-    if(target.tagName === 'SPAN') target = target.parentElement;
     if(!target) return;
 
-    if(target.dataset.sortable === 'false') return;
+    if(target === null) return;
+    const { id, order } = target.dataset;
+    const newOrder = order === 'asc' ? 'desc' : 'asc';
 
-    let field = target.dataset.id;
-    target.dataset.order = target.dataset.order === 'asc' ? 'desc' : 'asc';
-    let order = target.dataset.order;
-    
-    this.sort(field, order);
+    this.sort(id, newOrder);
   }
 
   initEventListeners() {
-    this.subElements.header.addEventListener('pointerdown', this.callBack);
+    this.subElements.header.addEventListener('pointerdown', this.sortTable);
   }
 
   sort(field, order) {
-    const obj = this.sortData(field, order);
+    const arr = this.sortData(field, order);
 
     const allColumns = this.element.querySelectorAll('.sortable-table__cell[data-id]');
     const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id="${field}"]`);
@@ -87,7 +84,7 @@ export default class SortableTable {
 
     currentColumn.dataset.order = order;
 
-    this.subElements.body.innerHTML = this.getColumnBody(obj) // updateBody
+    this.subElements.body.innerHTML = this.getColumnBody(arr) // updateBody
   }
 
   sortData(field, order) {

@@ -2,10 +2,10 @@ class Tooltip {
   static tooltip = null;
 
   constructor() {
-    if (Tooltip.instance) {
-      return Tooltip.instance;
+    if (Tooltip.tooltip) {
+      return Tooltip.tooltip;
     }
-    Tooltip.instance = this;
+    Tooltip.tooltip = this;
   }
 
   initialize () {

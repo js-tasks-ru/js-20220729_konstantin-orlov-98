@@ -73,6 +73,7 @@ export default class ColumnChart {
                 this.data = data;
                 const result = Object.values(this.data);
             })
+            
     }
 
     render() {

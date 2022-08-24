@@ -5,30 +5,21 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 export default class ColumnChart {
     chartHeight = 50;
     subElements = {};
+    element;
 
     constructor({
-        data = [],
         url = '',
-        range = {
-          from,
-          to
-        } = {},
+        range = { from: new Date(), to: new Date()},
         label = "", 
         link = "", 
-        value = 0, 
         formatHeading = data => data} = {}) {
-       this.data = data;
-       this.url = url;
+       this.url = new URL(url, BACKEND_URL);
        this.range = range;
-    //    this.range.from = range.from;
-    //    this.range.to = range.to;
        this.label = label;
        this.link = link;
-       this.value = formatHeading(value);
-
+       this.formatHeading = formatHeading;
        this.render();
-       this.loadData(this.range.from, this.range.to);
-       
+       this.update(this.range.from, this.range.to);
     }
 
     getTemplate() {
@@ -40,7 +31,7 @@ export default class ColumnChart {
                 </div>
                 <div class="column-chart__container">
                     <div data-element="header" class="column-chart__header">
-                        ${this.value}
+                        
                     </div>
                     <div data-element="body" class="column-chart__chart">
                         ${this.getColumn()}
@@ -54,28 +45,19 @@ export default class ColumnChart {
         return this.link ? `<a href="${this.link} class="column-chart__link">View all</a>` : '';
     }
 
-    getColumn() {
-        const maxValue = Math.max(...this.data);
+
+
+    getColumn(data = []) {
+        const maxValue = Math.max(...data);
         const scale = this.chartHeight / maxValue;
 
-        return this.data.map(item => {
+        return data.map(item => {
             const percent = ((item / maxValue) * 100).toFixed(0);
 
             return `
                 <div style="--value: ${Math.floor(item * scale)}" data-tooltip="${percent}%"></div>
             `
         }).join("");
-    }
-
-    loadData(from = this.range.from, to = this.range.to) {
-        fetch(BACKEND_URL + '/' + this.url + '?' + from.toISOString() + to.toISOString())
-            .then(response => {
-                const data = response.json();
-                return data;
-            }).then(data => {
-                const result = Object.values(data);
-                this.update(result)
-            })
     }
 
     render() {
@@ -85,17 +67,26 @@ export default class ColumnChart {
 
         this.element = element.firstElementChild;
 
-        if(this.data.length) {
-            this.element.classList.remove('column-chart_loading')
-        }
-
         this.subElements = this.getSubElements();
+    }
+
+    loadData(from = this.range.from, to = this.range.to) {
+        this.url.searchParams.set('from', from.toISOString());
+        this.url.searchParams.set('to', to.toISOString());
+
+        return fetch(this.url)
+            .then(response => {
+                const data = response.json();
+                return data;
+            }).then(data => {
+                return data;
+            })
     }
 
     getSubElements() {
         const result = {};
 
-        const elements = this.element.querySelectorAll("[data-element='body']");
+        const elements = this.element.querySelectorAll("[data-element]");
 
         for (const subElement of elements) {
             const name = subElement.dataset.element;
@@ -106,11 +97,21 @@ export default class ColumnChart {
         return result;
     }
 
-    update(data) {
-        this.data = data;
-
-        this.subElements.body.innerHTML = this.getColumn();
+    getHeaderValue(arr) {
+        return arr.reduce((sum, current) => sum + current, 0);
     }
+
+    async update(from, to) {
+        const data = await this.loadData(from, to);
+        const dataArr = Object.values(data);
+
+        if(data && dataArr.length) {
+          this.subElements.header.textContent = this.getHeaderValue(dataArr);
+          this.subElements.body.innerHTML = this.getColumn(dataArr);
+
+          this.element.classList.remove('column-chart_loading');
+        }
+      }
 
     remove() {
         if (this.element) {

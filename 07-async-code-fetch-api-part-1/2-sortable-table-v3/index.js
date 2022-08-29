@@ -29,6 +29,9 @@ export default class SortableTable {
     this.isSortLocally = isSortLocally;
 
     this.render();
+
+
+    
   }
 
   getTemplate() {

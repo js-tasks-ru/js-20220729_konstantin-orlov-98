@@ -184,7 +184,7 @@ export default class ProductForm {
       <li class="products-edit__imagelist-item sortable-list__item">
         <span>
           <img src="./icon-grab.svg" data-grab-handle="" alt="grab">
-          <img class="sortable-table__cell-img" alt="Image" src="${escapeHtml(url)}">
+          <img class="sortable-table__cell-img" alt="${escapeHtml(name)}" src="${escapeHtml(url)}">
           <span>${escapeHtml(name)}</span>
         </span>
         <button type="button">
@@ -235,7 +235,6 @@ export default class ProductForm {
           body: formData,
           referrer: ''
         });
-        console.log(result)
 
         imageListContainer.append(this.getImageItem(result.data.link, file.name));
 
@@ -277,9 +276,7 @@ export default class ProductForm {
   }
 
   dispatchEvent (id) {
-    const event = this.productId
-      ? new CustomEvent('product-updated', { detail: id }) // new CustomEvent('click')
-      : new CustomEvent('product-saved');
+    const event = this.productId ? new CustomEvent('product-updated', { detail: id }) : new CustomEvent('product-saved');
 
     this.element.dispatchEvent(event);
   }
@@ -315,21 +312,21 @@ export default class ProductForm {
 
 
   initEventListeners () {
-    const { productForm, uploadImage, imageListContainer } = this.subElements;
+    const { productForm, uploadImage } = this.subElements;
 
     productForm.addEventListener('submit', this.onSubmit);
     uploadImage.addEventListener('click', this.uploadImage);
-  }
-
-  destroy () {
-    this.remove();
-    this.element = null;
-    this.subElements = null;
   }
 
   remove () {
     if (this.element) {
       this.element.remove();
     }
+  }
+
+  destroy () {
+    this.remove();
+    this.element = null;
+    this.subElements = null;
   }
 }

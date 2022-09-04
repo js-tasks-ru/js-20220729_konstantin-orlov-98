@@ -93,7 +93,9 @@ export default class Page {
   }
 
   renderComponents () {
-    this.subElements.rangePicker.append(this.components.rangePicker.element)
+    for (const key of Object.keys(this.components)) {
+      this.subElements[key].append(this.components[key].element)
+    }
   }
 
   render () {

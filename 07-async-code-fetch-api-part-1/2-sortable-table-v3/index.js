@@ -3,6 +3,7 @@ import fetchJson from './utils/fetch-json.js';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class SortableTable {
+  element;
   subElements = {};
   start = 1;
   step = 20;
@@ -28,10 +29,7 @@ export default class SortableTable {
     this.end = end;
     this.isSortLocally = isSortLocally;
 
-    this.render();
-
-
-    
+    this.render(); 
   }
 
   getTemplate() {

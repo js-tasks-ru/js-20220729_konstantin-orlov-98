@@ -17,12 +17,6 @@ export default class ProductForm {
     price: 100,
     discount: 0
   };
-  productNameTitle = 'Название товара';
-  descriptiontitle = 'Описание';
-  photoTitle = 'Фото';
-  category = 'Категория';
-  quantity = 'Колличество';
-  status = 'Статус';
 
   getEmptyTemplate () {
     return `<div>
@@ -41,18 +35,18 @@ export default class ProductForm {
         <form data-element="productForm" class="form-grid">
           <div class="form-group form-group__half_left">
             <fielset>
-              <label class="form-label">${this.productNameTitle}</label>
+              <label class="form-label">Название товара</label>
               <input required id="title" value="" type="text" name="title" class="form-control" placeholder="${this.productNameTitle}">
             </fieldset>
           </div>
 
           <div class="form-group form-group__wide">
-            <label class="form-label">${this.descriptiontitle}</label>
+            <label class="form-label">Описание</label>
             <textarea id="description" class="form-control" name="description" data-element="productDescription" placeholder="${this.descriptiontitle}"></textarea>
           </div>
 
           <div class="form-group form-group__wide">
-            <label class="form-label">${this.photoTitle}</label>
+            <label class="form-label">Фото</label>
 
             <div data-element="imageListContainer">
               <ul class="sortable-list">
@@ -66,7 +60,7 @@ export default class ProductForm {
           </div>
 
           <div class="form-group form-group__half_left">
-            <label class="form-label">${this.category}</label>
+            <label class="form-label">Категория</label>
               ${this.createSelectList()}
           </div>
 
@@ -83,12 +77,12 @@ export default class ProductForm {
           </div>
 
           <div class="form-group form-group__part-half">
-            <label class="form-label">${this.quantity}</label>
+            <label class="form-label">Колличество</label>
             <input required id="quantity" value="" type="number" class="form-control" name="quantity" placeholder="${this.defaultFormData.quantity}">
           </div>
 
           <div class="form-group form-group__part-half">
-            <label class="form-label">${this.status}</label>
+            <label class="form-label">Статус</label>
 
             <select id="status" class="form-control" name="status">
               <option value="1">Активен</option>
@@ -109,7 +103,7 @@ export default class ProductForm {
   async render () {
     const categoriesPromise = this.loadCategoriesList();
     
-    const productPromise = this.productId ? this.loadProductData(this.productId) : Array.from(Promise.resolve(this.defaultFormData));
+    const productPromise = this.productId ? this.loadProductData(this.productId) : Array.from(Promise.resolve(this.defaultFormData)); //Array.from нужен для того чтобы productResponse был итерабильным. Если не вызывать Array.from то в случае когда productId не будет передан скрипт упадет в ошибку productResponse is not iterable
 
     const [categoriesData, productResponse] = await Promise.all([categoriesPromise, productPromise]);
 
@@ -300,10 +294,10 @@ export default class ProductForm {
 
     const imagesList = imageListContainer.querySelectorAll('.sortable-table__cell-img');
     
-    for (const images of imagesList) {
+    for (const image of imagesList) {
       sendObj.images.push({
-        url: images.src,
-        source: images.alt
+        url: image.src,
+        source: image.alt
       })
     }
 

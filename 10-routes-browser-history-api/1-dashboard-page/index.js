@@ -11,22 +11,15 @@ export default class Page {
   element;
   subElements = {};
   components = {};
+  url = new URL('api/dashboard/bestsellers', BACKEND_URL);
 
   initCompinents () {
     const now = new Date();
     const to = new Date();
     const from = new Date(now.setMonth(now.getMonth() - 1));
-
-    const url = new URL('api/dashboard/bestsellers', BACKEND_URL);
-    url.searchParams.set('from', from.toISOString());
-    url.searchParams.set('to', to.toISOString());
-    url.searchParams.set('_sort', 'title');
-    url.searchParams.set('_order', 'asc');
-    url.searchParams.set('_start', '1');
-    url.searchParams.set('_end', '20');
   
     const sortableTable = new SortableTable(header, {
-      url: url,
+      url: this.url,
       isSortLocally: true
     });
 
@@ -72,6 +65,7 @@ export default class Page {
       sortableTable
     };
   }
+
   getTeamplate () {
     return `
       <div class="dashboard">
@@ -92,6 +86,34 @@ export default class Page {
     `
   }
 
+  initUrl (from, to) {
+    this.url.searchParams.set('from', from.toISOString());
+    this.url.searchParams.set('to', to.toISOString());
+    this.url.searchParams.set('_sort', 'title');
+    this.url.searchParams.set('_order', 'asc');
+    this.url.searchParams.set('_start', '1');
+    this.url.searchParams.set('_end', '20');
+
+    return fetchJson(this.url);
+  }
+
+  async updateComponents (from, to) {
+    const data = await this.initUrl(from, to);
+
+    this.components.sortableTable.update(data);
+    this.components.ordersChart.update(from, to);
+    this.components.salesChart.update(from, to);
+    this.components.customersChart.update(from, to);
+  }
+
+  initEventListeners () {
+    this.components.rangePicker.element.addEventListener('date-select', (event) => {
+      const { from, to } = event.detail;
+
+      this.updateComponents(from, to)
+    })
+  }
+
   renderComponents () {
     for (const key of Object.keys(this.components)) {
       this.subElements[key].append(this.components[key].element)
@@ -109,6 +131,7 @@ export default class Page {
 
     this.initCompinents();
     this.renderComponents();
+    this.initEventListeners();
 
     return this.element;
   }
@@ -124,5 +147,23 @@ export default class Page {
     }
 
     return result;
+  }
+
+  remove() {
+    if (this.element) {
+      this.element.remove();
+    }
+  }
+
+  destroy () {
+    this.remove();
+    this.subElements = {};
+    this.element = null;
+
+    for (const component of Object.values(this.components)) {
+      component.destroy();
+    }
+
+    this.components = {};
   }
 }

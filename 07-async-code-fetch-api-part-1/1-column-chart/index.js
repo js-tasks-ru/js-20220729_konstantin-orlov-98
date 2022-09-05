@@ -102,6 +102,10 @@ export default class ColumnChart {
     }
 
     async update(from, to) {
+        this.element.classList.add('column-chart_loading');
+        this.subElements.header.textContent = '';
+        this.subElements.body.innerHTML = '';
+
         const data = await this.loadData(from, to);
         const dataArr = Object.values(data);
 

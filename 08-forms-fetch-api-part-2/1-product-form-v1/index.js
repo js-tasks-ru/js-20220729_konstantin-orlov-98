@@ -48,11 +48,9 @@ export default class ProductForm {
           <div class="form-group form-group__wide">
             <label class="form-label">Фото</label>
 
-            <div data-element="imageListContainer">
-              <ul class="sortable-list">
+              <ul data-element="imageListContainer" class="sortable-list">
                 ${this.createImagesList()}
               </ul>
-            </div>
 
             <button type="button" data-element="uploadImage" class="button-primary-outline">
               <span>Загрузить</span>
@@ -103,7 +101,7 @@ export default class ProductForm {
   async render () {
     const categoriesPromise = this.loadCategoriesList();
     
-    const productPromise = this.productId ? this.loadProductData(this.productId) : Array.from(Promise.resolve(this.defaultFormData)); //Array.from нужен для того чтобы productResponse был итерабильным. Если не вызывать Array.from то в случае когда productId не будет передан скрипт упадет в ошибку productResponse is not iterable
+    const productPromise = this.productId ? this.loadProductData(this.productId) : Promise.resolve([this.defaultFormData]);
 
     const [categoriesData, productResponse] = await Promise.all([categoriesPromise, productPromise]);
 

@@ -136,6 +136,7 @@ export default class SortableTable {
   }
 
   update(data) {
+    this.subElements.body.innerHTML = '';
     const rows = document.createElement('div');
     rows.innerHTML = this.getTableBody(data);
     this.subElements.body.append(...rows.childNodes)
